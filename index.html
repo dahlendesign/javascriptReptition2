@@ -1,0 +1,103 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta http-equiv="X-UA-Compatible" content="IE=edge">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Document</title>
+</head>
+<body>
+    <header><h1>ICA Glimåkra</h1></header>
+    <main>
+        <table id="bagTable">
+            <tr>
+                <th>Produkt</th>
+                <th>Antal</th>
+                <th>à pris</th>
+                <th></th>
+            </tr>
+            <tr>
+                <td>Daim</td>
+                <td><input type="number" class="quantity" value="3" onchange="updateSum()"></td>
+                <td><span class="unitprice">19</span>kr</td>
+                <td><button onclick="delProduct(this)">x</button></td>
+            </tr>
+            <tr>
+                <td>Dubbelnougat</td>
+                <td><input type="number" class="quantity" value="4" onchange="updateSum()"></td>
+                <td><span class="unitprice">16</span>kr</td>
+                <td><button onclick="delProduct(this)">x</button></td>
+            </tr>
+        </table>
+        <input type="radio" name="delivery" id="shop" checked value="1"> Hämta i butik
+        <input type="radio" name="delivery" id="homedelivery" value="2"> Hemkört (89kr) <br>
+        <input type="text" id="city"><button id="reCalculate">Räkna ut pris</button>
+        <span id="cityName"></span>
+        Summa: <span id="sum"></span>kr
+
+    </main>
+
+    <script>
+        // ##############
+        // Functions
+        // ##############
+
+        const fetchCityObj = (chosen_pn) => {
+            let postnumbers = [ { pn: 28272, city: "Sösdala", price: 109 }, { pn: 28946, city: "Glimåkra", price: 59 }, { pn: 28131, city: "Hässleholm", price: 99 }, { pn: 28341, city: "Osby", price: 79 } ];
+
+            let foundObj = postnumbers.filter(city => city.pn == chosen_pn);
+            if (foundObj.length == 1){
+                return foundObj[0];
+            } else {
+                return false;
+            }
+        }
+
+        const delProduct = (e) => {
+            e.closest('tr').remove();
+            updateSum();
+        }
+
+        const updateSum = () => {
+            let sum = 0;
+            let table = document.querySelector('#bagTable');
+            for (let i = 1; i < table.rows.length; i++){
+                sum += table.rows[i].querySelector('.unitprice').innerHTML.replace(',', '.') * table.rows[i].querySelector('.quantity').value;
+            }
+
+            // för steg1 bara
+            // if (document.querySelector('input[name="delivery"]:checked').value == 2){
+            //     sum += 89;
+            // }
+            let chosen_pn = document.querySelector('#city').value;
+            chosen_pn = chosen_pn.replaceAll(' ', '');
+
+            if (chosen_pn != ""){
+                let city_obj = fetchCityObj(chosen_pn);
+                if (city_obj){
+                    sum += city_obj.price;
+                    document.querySelector('#cityName').innerHTML = city_obj.city;
+                } else {
+                    document.querySelector('#cityName').innerHTML = '';
+                    alert("Hemleverans inte möjligt till postnummer: " + chosen_pn);
+                }
+            }
+            document.querySelector('#sum').innerHTML = sum;
+        }
+
+
+        // ##############
+        // Listeners
+        // ##############
+        document.querySelector('#shop').addEventListener("change", updateSum);
+        document.querySelector('#homedelivery').addEventListener("change", updateSum);
+        document.querySelector('#reCalculate').addEventListener("click", updateSum);
+
+        // ##############
+        // Auto start
+        // ##############
+        updateSum();
+
+    </script>
+</body>
+</html>
